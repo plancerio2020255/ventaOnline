@@ -1,0 +1,32 @@
+{
+  "name": "ventaonline",
+  "version": "1.0.0",
+  "description": "Venta Online, API para el lado del servidor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plancerio2020255/ventaOnline.git"
+  },
+  "author": "Pedro Lancerio",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/plancerio2020255/ventaOnline/issues"
+  },
+  "homepage": "https://github.com/plancerio2020255/ventaOnline#readme",
+  "dependencies": {
+    "bcrypt-nodejs": "^0.0.3",
+    "body-parser": "^1.19.2",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.6",
+    "express": "^4.17.3",
+    "html-pdf": "^3.0.1",
+    "jwt-simple": "^0.5.6",
+    "moment": "^2.29.1",
+    "mongoose": "^6.2.4",
+    "nodemon": "^2.0.15"
+  }
+}
