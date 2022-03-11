@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const app = require('./app')
+const app = require('./app');
 
-const usuarioController = require('./src/controllers/usurio.controller')
+const usuarioController = require('./src/controllers/usuario.controller');
 
 mongoose.Promise = global.Promise;
 
@@ -10,7 +10,7 @@ mongoose.connect('mongodb://localhost:27017/ventaOnline', {useNewUrlParser: true
 
     usuarioController.crearAdmin();
 
-    app.listen(300, function () {
+    app.listen(3000, function () {
         console.log('ventaOnline esta corriendo en el puerto 3000');
     })
 
