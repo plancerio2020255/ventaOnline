@@ -53,6 +53,65 @@ function crearProducto (req, res) {
 
 }
 
+function editarProducto(req,res) {
+    const productoId = req.params.idProducto;
+    const parametros = req.body;
+
+    Productos.findByIdAndUpdate(productoId, parametros, { new : true } ,(err, productoEditado)=>{
+        if (err) return res.status(500).send({ mensaje: 'Error en la peticion' });
+        if(!productoEditado) return res.status(404)
+            .send({ mensaje: 'Error al Editar el Producto' });
+
+        return res.status(200).send({ producto: productoEditado });
+    })
+}
+
+function eliminarProducto(req,res) {
+    const productoId = req.params.idProducto;
+
+    Productos.findByIdAndDelete(productoId,{new : true}, (err, productoEliminado) =>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
+        if(!productoEliminado) return res.status(400).send({mensaje: 'Error al eliminar producto'})
+
+        return res.status(200).send({producto: productoEliminado})
+    })
+}
+
+function buscarProductoNombre(req,res) {
+    const productoId = req.body.nombre;
+
+        Productos.findById(productoId, (err, productoEncontrado)=>{
+            if(err) return res.status(500).send({ mensaje: 'Error en la peticion' })
+            if(!productoEncontrado) return res.status(404).send({ mensaje: 'Error al buscar productos' })
+            return res.status(200).send(productoEncontrado)
+        })
+  
+
+}
+
+function buscarProductoCategoria(req, res) {
+    const categoriaId = req.params.idCategoria
+        Productos.find({categoria: categoriaId}, (err, productosEncontrados)=>{
+            if(err) return res.status(500).send({ mensaje: 'Error en la petición' })
+            if(!productosEncontrados) return res.status(500).send({mensaje: 'Error al buscar productos'})
+            return res.status(200).send({mensaje: productosEncontrados})
+            
+})
+}
+
+function buscarProductos(req, res) {
+    Productos.find({}, (err, productosEncontrados) =>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
+        if(!productosEncontrados) return res.status(500).send({mensaje: 'Error al buscar productos'})
+        return res.status(200).send({productosEncontrados})
+    })
+}
+
 module.exports = {
-    crearProducto
+    crearProducto,
+    editarProducto,
+    eliminarProducto,
+    buscarProductoNombre,
+    buscarProductoCategoria,
+    buscarProductos
 }
