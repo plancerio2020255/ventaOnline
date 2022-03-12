@@ -24,11 +24,11 @@ function crearProducto (req, res) {
             {descripcion: modeloProducto.descripcion}
         ]}).exec((err, productos) => {
             if(err) return res.status(500).send({mensaje: 'Error en la peticion de productos'})
-            if(productos && productos.length >= 1){
+            if(productos && productos.length >0){
                 return res.status(500).send({mensaje: 'el producto ya existe'})
             }else{
 
-                Categorias.findById(modeloProducto.categoria, (err, categoriaEncontrada)=>{
+                Categorias.findById(modeloProducto.idCategoria, (err, categoriaEncontrada)=>{
                     if(err) return res.status(500).send({ message: 'error en la petición de categorias' })
                     if(!categoriaEncontrada) return res.status(404).send({ mensaje: 'no se ha encontrado la categoria' })
                     modeloProducto.save((err, productoGuardado) => {
