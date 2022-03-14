@@ -7,7 +7,10 @@ const api = express.Router();
 api.post('/agregarProducto', [md_auth.Auth, md_rol.verAdmin], productosControlador.crearProducto)
 api.put('/editarProducto/:idProducto', [md_auth.Auth, md_rol.verAdmin], productosControlador.editarProducto)
 api.delete('/eliminarProducto/:idProducto', [md_auth.Auth, md_rol.verAdmin], productosControlador.eliminarProducto)
-api.get('/buscarProductoNombre', productosControlador.buscarProductoNombre)
-api.get('/buscarProductoCategoria', productosControlador.buscarProductoCategoria)
-api.get('/buscarProductos', productosControlador.buscarProductos)
+api.get('/buscarProductoNombre', productosControlador.buscarProductoPorNombre)
+api.get('/catalogoPorCategoria', productosControlador.buscarProductoCategoria)
+api.get('/catalogo', productosControlador.buscarProductos)
+api.put('/controlStock/:idP', productosControlador.controlStock);
+api.get('/productosAgotados', [md_auth.Auth, md_rol.verAdmin], productosControlador.productosAgotados)
+api.get('/productosMasVendidos', [md_auth.Auth, md_rol.verAdmin], productosControlador.productosMasVendidos)
 module.exports = api; 

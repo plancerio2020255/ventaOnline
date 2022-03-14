@@ -13,13 +13,6 @@ api.delete('/eliminarCliente/:idCliente', [md_auth.Auth, md_rol.verCliente], usu
 
 api.put('/editarUsuario/:idCliente', [md_auth.Auth, md_rol.verAdmin], usuarioController.editarUsuario)
 api.delete('/eliminarUsuario/:idCliente', [md_auth.Auth, md_rol.verAdmin], usuarioController.eliminarUsuario)
-/*
-api.put('/editarClientes/:id', md_auth.ensureAuth, UserController.editarClientes)
-api.delete('/eliminarClientes/:id', md_auth.ensureAuth, UserController.eliminarClientes)
-api.put('/agregar_a_Carrito', md_auth.ensureAuth, UserController.añadirCarrito)
-api.put('/comprar', md_auth.ensureAuth, UserController.comprar)
-api.get('/facturasXcliente', md_auth.ensureAuth, UserController.facturasUsuario)
-api.get('/productosXfactura', md_auth.ensureAuth, UserController.productoXFactura)
-api.post('/crearPDF', UserController.createPDF)
-*/ 
+api.put('/agregarProductosCarrito', [md_auth.Auth, md_rol.verCliente], usuarioController.añadirCarrito)
+
 module.exports = api;

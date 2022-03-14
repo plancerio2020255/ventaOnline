@@ -7,6 +7,7 @@ const productoSchema = Schema ({
     precio: String,
     stock: Number,
     idCategoria : {type: Schema.ObjectId, ref: 'Categoria'},
+    nombreCategoria : {type: Schema.Types.String, ref: 'Categoria'},
     unidadesVendidas: Number
 })
 

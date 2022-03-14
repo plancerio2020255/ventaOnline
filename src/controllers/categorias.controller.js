@@ -59,12 +59,20 @@ function editarCategoria(req,res) {
 function eliminarCategoria(req,res) {
     const categoriaId = req.params.idCategoria;
     
-    Categoria.findByIdAndDelete(categoriaId, {new:true}, (err, categoriaEliminada) => {
-        if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
-        if(!categoriaEliminada) return res.status(404).send({mensaje: 'Error al eliminar categoria'});
+        Categoria.findById(categoriaId, (err, categoriaEncontrada)=>{
+            if(err) return res.status(500).send({ mensaje: 'Error en la peticion' })
+            if(!categoriaEncontrada) return res.status(404).send({ mensaje: 'Error al buscar entre categorias' })
+            Categoria.findByIdAndDelete(categoriaEncontrada._id, (err, categoriaEliminada)=>{
+                if(err) return res.status(500).send({ mensaje: 'Error al intentar eliminar categoria' })
+                if(!categoriaEliminada) return res.status(404).send({ mensaje: 'No se ha podido eliminar la categoria' })
 
-        return res.status(200).send({categoria: categoriaEliminada});
-    })
+                    Categoria.findOne({nombre: "defaultCategory"}, (err, defaultCategoryCreated)=>{
+                        Producto.updateMany({idCategoria: categoriaId}, {idCategoria: defaultCategoryCreated._id}).exec();
+                        return res.status(200).send({ mensaje: 'Categoria eliminada', categoriaEliminada })
+                    })
+                
+            })
+        })
 }
 
 function obtenerCategorias(req,res) {

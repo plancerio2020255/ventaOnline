@@ -11,7 +11,8 @@ const usuarioSchema = Schema({
         nombreProducto: String,
         cantidad: Number,
         precio: Number,
-        idProductos: {type: Schema.ObjectId, ref: 'Productos'},
+        idProducto: {type: Schema.ObjectId, ref: 'Productos'},
+        subTotal: Number,
         total: Number
     }]
 })

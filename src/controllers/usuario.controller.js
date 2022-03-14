@@ -1,6 +1,6 @@
 const Usuario = require('../models/usuario.model');
 const bcrypt = require('bcrypt-nodejs')
-
+const Producto = require('../models/productos.model')
 const jwt = require('../services/jwt');
 
 
@@ -111,6 +111,7 @@ function editarUsuario(req,res) {
     Usuario.findById(clienteId, (err, usuarioEncontrado)=>{
         if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
         if(!usuarioEncontrado) return res.status(404).send({mensaje: 'Error al editar'})
+        if(usuarioEncontrado.rol != 'Cliente') return res.status(500).send({mensaje: 'Solo puede editar usuarios con rol Cliente'})
         Usuario.findByIdAndUpdate(clienteId, parametros, {new: true},(err, usuarioActualizado) =>{
             return res.status(200).send({usuarioActualizado})
         })
@@ -124,7 +125,7 @@ function eliminarUsuario(req,res) {
     Usuario.findById(clienteId, (err, clienteEncontrado) => {
         if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
         if(!clienteEncontrado) return res.status(404).send({mensaje: 'Error al eliminar usuario'})
-        if(clienteEncontrado.usuario == 'Admin') return res.send({mensaje: 'El administrador original no puede ser eliminado'})
+        if(clienteEncontrado.rol !== 'Cliente') return res.send({mensaje: 'Solo puede eliminar usuarios con rol Cliente'})
         Usuario.findByIdAndDelete(clienteId, (err, clienteEliminado) => {
             if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
             if(!clienteEliminado) return res.status(404).send({mensaje: 'Erro al eliminar usuario'})
@@ -142,7 +143,7 @@ function editarCliente(req, res) {
     Usuario.findById(clienteId, (err, usuarioEncontrado)=>{
         if(err) return res.status(500).send({ mensaje: 'Error en la peticion' })
         if(!usuarioEncontrado) return res.status(404).send({ mensaje: 'Error al editar el cliente' })
-        if(usuarioEncontrado.rol == 'Admin') return res.send({ mensaje: 'No puede editar otros usuarios' })
+        if(usuarioEncontrado.rol == 'Admin') return res.send({ mensaje: 'Solo puede editar usuarios con rol Cliente' })
         if(parametros.rol) return res.send({mensaje: 'Solo un administrador puede cambiar el rol'})
         Usuario.findByIdAndUpdate(clienteId, parametros, {new: true},(err, usuarioActualizado)=>{
             return res.status(200).send({ usuarioActualizado })
@@ -159,7 +160,7 @@ function eliminarCliente(req,res) {
     Usuario.findById(clienteId, (err, clienteEncontrado)=>{
         if(err) return res.status(500).send({ mensaje: 'Error en la peticion' })    
         if(!clienteEncontrado) return res.status(404).send({ mensaje: 'Error al encontrar el cliente' })
-        if(clienteEncontrado.rol == 'Admin') return res.send({ mensaje: 'El administrador no puede ser eliminado' })
+        if(clienteEncontrado.rol == 'Admin') return res.send({ mensaje: 'Solo puede editar usuarios con rol Cliente' })
 
         Usuario.findByIdAndDelete(clienteId, (err, clienteEliminado) =>{
             if(err) return res.status(500).send({ mensaje: 'Error en la peticion' })
@@ -170,6 +171,52 @@ function eliminarCliente(req,res) {
     })
 
 }
+
+/*-----------------------------CARRITO---------------------------------*/
+function añadirCarrito(req, res) {
+    var idProductos = req.body.idProducto
+    var cantidad = req.body.cantidad
+    
+    Producto.findById(idProductos, (err, productoEncontrado)=>{
+        if(err) return res.status(500).send({ mensaje: 'Error en la peticion' })
+        if(!productoEncontrado) return res.status(404).send({ mensaje: 'Error al buscar entre productos' })
+        
+        Usuario.countDocuments({_id: req.user.sub, "carritoDeCompras.idProducto": idProductos}, (err, productoRegistrado)=>{
+            if(err) return res.status(500).send({ mensaje: 'Error en la peticion' })
+            if(productoRegistrado == 0){
+                if(productoEncontrado.stock < cantidad) return res.send({ mensaje: 'No hay suficiente stock' })
+                Usuario.findByIdAndUpdate(req.user.sub, { $push: { carritoDeCompras: { nombre: productoEncontrado.nombre, cantidad: cantidad, 
+                    precio: productoEncontrado.precio, idProducto: productoEncontrado._id, subTotal: productoEncontrado.precio * cantidad } } },
+                     {new: true}, (err, carritoActualizado) =>{
+                    if(err) return res.status(500).send({ mensaje: 'Error en la peticion' })
+                    if(!carritoActualizado) return res.status(404).send({ mensaje: 'Error al agregar producto' })
+                    return res.status(200).send({ carritoActualizado })
+                })
+            }else{
+                Usuario.findOne({_id: req.user.sub, "carritoDeCompras.idProducto": idProductos}, {"carritoDeCompras.$.cantidad": 1, _id: 0}, 
+                    (err, cantidadProductoEncontrado)=>{
+                    const cantidadTotal = cantidadProductoEncontrado.carritoDeCompras[0].cantidad + Number(cantidad)
+                    const precioAnterior =  cantidadProductoEncontrado.carritoDeCompras[0].precio * cantidad
+                    
+                if(cantidadTotal > productoEncontrado.stock) return res.send({ mensaje:'No hay suficiente stock' })
+
+
+
+                  Usuario.updateOne({_id: req.user.sub, carritoDeCompras: {$elemMatch: {idProducto: idProductos}}}, 
+                  {$inc:{"carritoDeCompras.$.cantidad": cantidad ,
+                  "carritoDeCompras.$.subTotal": precioAnterior}}, (err, cantidadIncrementada)=>{
+                    if(err) return res.status(500).send({ mensaje: 'Error en la peticion de usuario' })
+                    if(!cantidadIncrementada) return res.status(404).send({ mensaje: 'error al actualizar el producto' })
+                    Usuario.findById(req.user.sub, (err, usuarioEncontrado)=>{
+                        return res.status(200).send({ usuarioEncontrado })
+                    })
+                })
+                })
+                
+            }
+        })
+    })
+}
    
 module.exports = {
     crearAdmin,
@@ -178,5 +225,6 @@ module.exports = {
     editarCliente,
     eliminarCliente,
     editarUsuario,
-    eliminarUsuario
+    eliminarUsuario,
+    añadirCarrito
 }
